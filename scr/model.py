@@ -66,6 +66,42 @@ def predict(text: str):
     
     return text
 
+def predict_1(sentence_one):
+
+    tf_idf_sentece = tf_idf_vectorizer.transform(sentence_one)
+    tf_idf_array_sentence = tf_idf_sentece.toarray()
+
+    # DataFrame with candidate questions ordered by similarity (dot product)
+    questions_candidates = get_tf_idf_score(tf_idf_array, tf_idf_array_sentence)
+
+    print(questions_candidates)
+    return questions_candidates
+
+def predict_2(questions_candidates):
+
+    output_dict_list = []
+
+    for row in range(questions_candidates.shape[0]):
+
+        QA_input = {
+            'question': cisco_data['answer_title'][questions_candidates.index[row]],
+            'context': cisco_data['answer_paragraphs'][questions_candidates.index[row]]
+        }
+
+        model_answer = nlp(QA_input)
+
+        output_dict = {
+            'question_index': int(questions_candidates.index[row]),
+            'question_value': float(questions_candidates.value[questions_candidates.index[row]]),
+            'question': cisco_data['question_original'][questions_candidates.index[row]],
+            'model_answer_value': float(model_answer['score']),
+            'model_answer': model_answer['answer']
+        }
+        output_dict_list.append(output_dict)
+
+    print(output_dict_list)
+    return output_dict_list
+
 
 data_path = '../data/'
 
@@ -126,6 +162,10 @@ sentence_one = [" ".join(dict(Counter(session_dict).most_common(10)))]
 
 print('TOKENS from sentence_one: ', sentence_one)
 
+
+
+# CODE BELOW GOES TO FUNCTION
+'''
 tf_idf_sentece = tf_idf_vectorizer.transform(sentence_one)
 tf_idf_array_sentence = tf_idf_sentece.toarray()
 
@@ -133,6 +173,9 @@ tf_idf_array_sentence = tf_idf_sentece.toarray()
 questions_candidates = get_tf_idf_score(tf_idf_array, tf_idf_array_sentence)
 
 print(questions_candidates)
+'''
+
+
 
 
 #  T H E   M O D E L   G O E S   H E R E 
@@ -143,6 +186,13 @@ print('model', model_name, 'is loading...')
 nlp = pipeline('question-answering', model=model_name, tokenizer=model_name)
 print('model loaded!!!')
 
+questions_candidates = predict_1(sentence_one)
+
+output_dict_list = predict_2(questions_candidates)
+
+
+
+'''
 output_dict_list = []
 
 for row in range(questions_candidates.shape[0]):
@@ -164,6 +214,6 @@ for row in range(questions_candidates.shape[0]):
     output_dict_list.append(output_dict)
 
 print(output_dict_list)
-
+'''
 
 
