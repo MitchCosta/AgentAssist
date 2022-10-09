@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query, HTTPException
 from pydantic import BaseModel
-from model import predict, predict_1, predict_2
+from model import predict_1, predict_2
 
 
 app = FastAPI()
@@ -18,7 +18,6 @@ def get_prediction(payload: StockIn):
 
     my_text = payload.text
 
-    
     sentence_one = [my_text]
 
     questions_candidates = predict_1(sentence_one)

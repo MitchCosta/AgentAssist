@@ -5,6 +5,7 @@ import pandas as pd
 from pandas.core import apply
 import re
 import joblib
+from utils import clean_tokenize, match_vocabulay
 
 from ast import literal_eval
 import nltk
@@ -32,7 +33,7 @@ def get_tf_idf_score(tf_idf_arr, tf_idf_arr_sentence):
 
     return np_dot_df.sort_values('value', ascending=False).head(5)
 
-
+'''
 def clean_tokenize(text: str):
 
     # pre-process the new received text, similar to answer_title in cisco_data
@@ -60,11 +61,8 @@ def match_vocabulay(lst: list):
     
     return new_lst
 
-def predict(text: str):
+'''
 
-    text = text + 'Hello'
-    
-    return text
 
 def predict_1(sentence_one):
 
@@ -105,6 +103,8 @@ def predict_2(questions_candidates):
 
 data_path = '../data/'
 
+
+# START/START  SAME CODE AS IN SPEECH - - generate questions vocabulary
 cisco_data = pd.read_csv(data_path + 'cisco_faq_cleaned.csv')
 
 nltk.download('stopwords')
@@ -138,6 +138,8 @@ tf_idf_vectorizer = TfidfVectorizer()
 tf_idf_train = tf_idf_vectorizer.fit_transform(outlst)
 
 tf_idf_array = tf_idf_train.toarray()
+# END/END  SAME CODE AS IN SPEECH - - generate questions vocabulary
+
 
 
 # SESSION STARTS HERE
@@ -146,8 +148,8 @@ session_dict = {}
 # pre-process new incoming text
 received_text = 'Hello to you. How is the weather in New York mate? speaker selection via browser was removed from webRTC app'
 
-tokenized_received = clean_tokenize(received_text)
-tokenized_received = match_vocabulay(tokenized_received)
+tokenized_received = clean_tokenize(received_text, stop_words)
+tokenized_received = match_vocabulay(tokenized_received, tf_idf_vectorizer)
 
 #   add token to current session
 for word in tokenized_received:
@@ -186,9 +188,9 @@ print('model', model_name, 'is loading...')
 nlp = pipeline('question-answering', model=model_name, tokenizer=model_name)
 print('model loaded!!!')
 
-questions_candidates = predict_1(sentence_one)
+#questions_candidates = predict_1(sentence_one)
 
-output_dict_list = predict_2(questions_candidates)
+#output_dict_list = predict_2(questions_candidates)
 
 
 
