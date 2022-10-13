@@ -9,7 +9,7 @@ app = FastAPI()
 class StockIn(BaseModel):
     text: str
 
-class StockOut(BaseModel):  #StockIn
+class StockOut(BaseModel):
     forecast: list
 
 
@@ -28,5 +28,5 @@ def get_prediction(payload: StockIn):
     if not output_dict_list:
         raise HTTPException(status_code=400, detail="Model not found.")
 
-    response_object = {'forecast': output_dict_list}   # 'text': prediction_list, 
+    response_object = {'forecast': output_dict_list} 
     return response_object

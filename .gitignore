@@ -130,3 +130,6 @@ dmypy.json
 
 # AWS permissions
 *.pem
+
+# Joblib model
+*.joblib

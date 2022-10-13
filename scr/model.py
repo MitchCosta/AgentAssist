@@ -1,14 +1,11 @@
-import requests
 import numpy as np
 import pandas as pd
 
-from pandas.core import apply
 import re
 import joblib
 from utils import clean_tokenize, match_vocabulay
 
 from ast import literal_eval
-import nltk
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import jaccard_score
@@ -32,36 +29,6 @@ def get_tf_idf_score(tf_idf_arr, tf_idf_arr_sentence):
     np_dot_df = np_dot_df.assign(question=cisco_data['answer_title'][tokenized_questions.index].values)
 
     return np_dot_df.sort_values('value', ascending=False).head(5)
-
-'''
-def clean_tokenize(text: str):
-
-    # pre-process the new received text, similar to answer_title in cisco_data
-    # clean text
-    text = text.lower()
-    text = re.sub('[^a-z0-9.]', ' ', text)
-    text = ' '.join([w for w in text.split() if len(w) > 1])
-
-    # tokenize text
-    tokenized = text.split(' ')
-    # remove stop words
-    tokenized = [word for word in tokenized if word not in stop_words]
-
-    return tokenized
-
-
-def match_vocabulay(lst: list):
-
-    new_lst = []
-    # check if token exist in question vocabulay, IF NOT -> discard
-
-    for token in lst:
-        if token in tf_idf_vectorizer.vocabulary_:
-            new_lst.append(token)
-    
-    return new_lst
-
-'''
 
 
 def predict_1(sentence_one):
@@ -103,14 +70,14 @@ def predict_2(questions_candidates):
 
 data_path = '../data/'
 
-
 # START/START  SAME CODE AS IN SPEECH - - generate questions vocabulary
 cisco_data = pd.read_csv(data_path + 'cisco_faq_cleaned.csv')
 
-nltk.download('stopwords')
-from nltk.corpus import stopwords
-stop_words = stopwords.words('english')
+stop1 = pd.read_csv(data_path + 'stop_words.csv', names=['word'])
+stop_words = stop1['word'].values.tolist()
 
+cisco_data.drop_duplicates(subset=['answer_title'], inplace=True)
+cisco_data = cisco_data.reset_index(drop=True)
 
 # save the original question for use with the model
 cisco_data['question_original'] = cisco_data['answer_title']
@@ -165,57 +132,12 @@ sentence_one = [" ".join(dict(Counter(session_dict).most_common(10)))]
 print('TOKENS from sentence_one: ', sentence_one)
 
 
-
-# CODE BELOW GOES TO FUNCTION
-'''
-tf_idf_sentece = tf_idf_vectorizer.transform(sentence_one)
-tf_idf_array_sentence = tf_idf_sentece.toarray()
-
-# DataFrame with candidate questions ordered by similarity (dot product)
-questions_candidates = get_tf_idf_score(tf_idf_array, tf_idf_array_sentence)
-
-print(questions_candidates)
-'''
-
-
-
-
 #  T H E   M O D E L   G O E S   H E R E 
 
-model_name = "deepset/roberta-base-squad2"
+#model_name = "deepset/roberta-base-squad2"
+model_name = 'roberta-base-squad2.joblib'
 
 print('model', model_name, 'is loading...')
-nlp = pipeline('question-answering', model=model_name, tokenizer=model_name)
+#nlp = pipeline('question-answering', model=model_name, tokenizer=model_name)
+nlp = joblib.load(model_name)
 print('model loaded!!!')
-
-#questions_candidates = predict_1(sentence_one)
-
-#output_dict_list = predict_2(questions_candidates)
-
-
-
-'''
-output_dict_list = []
-
-for row in range(questions_candidates.shape[0]):
-
-    QA_input = {
-        'question': cisco_data['answer_title'][questions_candidates.index[row]],
-        'context': cisco_data['answer_paragraphs'][questions_candidates.index[row]]
-    }
-
-    model_answer = nlp(QA_input)
-
-    output_dict = {
-        'question_index': questions_candidates.index[row],
-        'question_value': questions_candidates.value[questions_candidates.index[row]],
-        'question': cisco_data['question_original'][questions_candidates.index[row]],
-        'model_answer_value': model_answer['score'],
-        'model_answer': model_answer['answer']
-    }
-    output_dict_list.append(output_dict)
-
-print(output_dict_list)
-'''
-
-
