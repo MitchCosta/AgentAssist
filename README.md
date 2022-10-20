@@ -9,7 +9,7 @@ The Customer–Agent dialogue usually starts with greetings and salutations, fol
 The assistant listen to the entire conversation, filter the irrelevant content, and presents the pertinent results on the Agent screen, along with confidence scores of each individual result.
 
 ## System Architecture
-  <img src='./Solution_architecture.jpg' width=50% height=50%>
+  <img src='./Solution_architecture.jpg'>
 
 
 ### System components     *(this solution comprises two repos)*
